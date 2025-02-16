@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 
 import { CheckCircle as CheckCircleIcon } from '@phosphor-icons/react/dist/ssr/CheckCircle';

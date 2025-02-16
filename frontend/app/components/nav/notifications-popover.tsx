@@ -1,5 +1,3 @@
-"use client";
-
 import type * as React from "react";
 import { ChatText as ChatTextIcon } from "@phosphor-icons/react/dist/ssr/ChatText";
 import { EnvelopeSimple as EnvelopeSimpleIcon } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";

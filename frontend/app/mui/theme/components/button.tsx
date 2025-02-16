@@ -1,4 +1,4 @@
-import { buttonClasses } from '@mui/material/Button';
+import { buttonClasses } from '@mui/material';
 import type { Components } from '@mui/material/styles';
 
 import type { Theme } from '../types';

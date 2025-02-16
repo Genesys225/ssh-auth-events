@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { Box, Link, Stack } from '@mui/material';
 import { DataTable, type ColumnDef } from '~/components/data-table/data-table';

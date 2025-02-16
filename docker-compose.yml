@@ -5,11 +5,6 @@ services:
       - "3000:3000"
     volumes:
       - ./sqlite.db:/app/sqlite.db
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   vector:
     image: timberio/vector:latest-debian
@@ -22,11 +17,21 @@ services:
       - /run/log/journal:/run/log/journal:ro
       - /etc/machine-id:/etc/machine-id:ro
       - ./data:/etc/vector
-      # - vector-data:/var/lib/vector
+      - vector-data:/var/lib/vector
       - ./vector:/scripts:ro
     environment:
       - VECTOR_LOG=info
     entrypoint: ["/bin/sh", "/scripts/detect-and-start.sh"]
 
-# volumes:
-#   vector-data:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:3000"
+    depends_on:
+      - app
+    environment:
+      - API_BASE_URL=http://localhost:3000
+      - API_BACKEND_URL=http://app:3000
+
+volumes:
+  vector-data:

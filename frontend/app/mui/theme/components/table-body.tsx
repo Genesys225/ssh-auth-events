@@ -1,6 +1,6 @@
 import type { Components } from '@mui/material/styles';
-import { tableCellClasses } from '@mui/material/TableCell';
-import { tableRowClasses } from '@mui/material/TableRow';
+import { tableCellClasses } from '@mui/material';
+import { tableRowClasses } from '@mui/material';
 
 import type { Theme } from '../types';
 

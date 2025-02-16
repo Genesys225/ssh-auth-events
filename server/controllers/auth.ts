@@ -44,7 +44,7 @@ export const verifyToken = async (req: Request, res: Response) => {
       res.status(401).json({ error: 'Invalid token' });
       return;
     }
-    console.log(payload);
+    res.json(payload);
   } catch (error) {
     console.error('Token verification error:', error);
     res.status(500).json({ error: 'Failed to verify token' });

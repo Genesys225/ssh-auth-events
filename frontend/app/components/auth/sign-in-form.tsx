@@ -8,7 +8,7 @@ import { useFetcher, useNavigation } from 'react-router';
 import { DynamicLogo } from '~/components/logo';
 import { RouterLink } from '~/components/link';
 import { paths } from '~/lib/paths';
-import { Alert, Box, Button, FormControl, FormHelperText, InputLabel, NoSsr, OutlinedInput, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, FormControl, FormHelperText, InputLabel, OutlinedInput, Stack, Typography } from '@mui/material';
 import { loginAction } from '~/auth/client';
 
 export const action = loginAction;
@@ -48,9 +48,7 @@ export default function SignInForm(): React.JSX.Element {
           href={paths.home}
           sx={{ display: 'inline-block', fontSize: 0 }}
         >
-          <NoSsr>
-            <DynamicLogo colorDark="light" colorLight="dark" height={32} width={122} />
-          </NoSsr>
+          <DynamicLogo colorDark="light" colorLight="dark" height={32} width={122} />
         </Box>
       </div>
       <Stack spacing={1}>

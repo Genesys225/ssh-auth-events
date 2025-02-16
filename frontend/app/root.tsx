@@ -21,8 +21,9 @@ import { useState } from "react";
 export const loader = async (ctx: LoaderFunctionArgs) => {
   const env = {
     API_BASE_URL: process.env.API_BASE_URL || "http://localhost:3000",
+    API_BACKEND_URL: process.env.API_BACKEND_URL || "http://app:3000",
   };
-  ctx.context.env = env;
+  Object.assign(ctx.context, { env });
   const user = await requireAuth(ctx);
   return {
     user,

@@ -1,4 +1,4 @@
-import { inputBaseClasses } from '@mui/material/InputBase';
+import { inputBaseClasses } from '@mui/material';
 import type { Components } from '@mui/material/styles';
 
 import type { Theme } from '../types';

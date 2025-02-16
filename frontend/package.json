@@ -16,8 +16,6 @@
     "@hookform/resolvers": "^4.0.0",
     "@mui/lab": "5.0.0-alpha.175",
     "@mui/material": "5.16.14",
-    "@mui/system": "5.16.14",
-    "@mui/utils": "5.16.14",
     "@mui/x-date-pickers": "7.26.0",
     "@phosphor-icons/react": "^2.1.7",
     "@react-router/node": "*",

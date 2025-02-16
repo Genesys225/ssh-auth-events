@@ -1,4 +1,4 @@
-import { avatarClasses } from '@mui/material/Avatar';
+import { avatarClasses } from '@mui/material';
 import type { Components } from '@mui/material/styles';
 
 import type { Theme } from '../types';

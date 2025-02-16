@@ -1,5 +1,5 @@
-import { inputBaseClasses } from '@mui/material/InputBase';
-import { outlinedInputClasses } from '@mui/material/OutlinedInput';
+import { inputBaseClasses } from '@mui/material';
+import { outlinedInputClasses } from '@mui/material';
 import type { Components } from '@mui/material/styles';
 
 import type { Theme } from '../types';

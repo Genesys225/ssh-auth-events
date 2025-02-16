@@ -95,19 +95,19 @@ export function SearchDialog({ onClose, open = false }: SearchDialogProps): Reac
 				<Stack spacing={3}>
 					<Tip message="Search by entering a keyword and pressing Enter" />
 					<form onSubmit={handleSubmit}>
-						<OutlinedInput
-							fullWidth
-							onChange={(event) => {
-								setValue(event.target.value);
-							}}
-							placeholder="Search..."
-							startAdornment={
-								<InputAdornment position="start">
-									<MagnifyingGlassIcon />
-								</InputAdornment>
-							}
-							value={value}
-						/>
+            <OutlinedInput
+              fullWidth
+              onChange={(event) => {
+                setValue(event.target.value);
+              }}
+              placeholder="Search..."
+              startAdornment={
+                <InputAdornment position="start">
+                  <MagnifyingGlassIcon />
+                </InputAdornment>
+              }
+              value={value}
+            />
 					</form>
 					{isLoading ? (
 						<Box sx={{ display: "flex", justifyContent: "center" }}>

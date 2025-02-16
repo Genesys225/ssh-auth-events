@@ -10,11 +10,11 @@ function getAuthToken(request: Request): string | null {
   return match ? match[1] : null;
 }
 
-export async function login(email: string, password: string, baseUrl: string) {
+export async function login(username: string, password: string, baseUrl: string) {
   const response = await fetch(`${baseUrl}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username: email, password }),
+    body: JSON.stringify({ username, password }),
   });
 
   if (!response.ok) {
@@ -26,7 +26,7 @@ export async function login(email: string, password: string, baseUrl: string) {
 }
 
 export async function requireAuth({ request, context: { env } }: LoaderFunctionArgs) {
-  const baseApiUrl = env.API_BASE_URL;
+  const baseApiUrl = env.API_BACKEND_URL;
   const token = getAuthToken(request);
   const { pathname } = new URL(request.url);
   if (pathname.startsWith('/login') && !token) return {};
@@ -44,6 +44,7 @@ export async function requireAuth({ request, context: { env } }: LoaderFunctionA
     });
 
     if (!response.ok) throw redirect("/login");
+    
     if (pathname.startsWith('/login')) {
       return redirect(paths.events.list);
     }
@@ -60,7 +61,7 @@ export async function loginAction({ request, context }: ActionFunctionArgs) {
   const formData = await request.formData();
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
-  const baseApiUrl = process.env.API_BASE_URL || 'http://localhost:3000';
+  const baseApiUrl = process.env.API_BACKEND_URL || 'http://app:3000';
   const response = await login(username, password, baseApiUrl);
   
   if (!response.success) {
@@ -74,7 +75,7 @@ export async function loginAction({ request, context }: ActionFunctionArgs) {
   const { protocol } = new URL(request.url);
   const secure = protocol === 'https:' ? '; Secure' : '';
 
-  throw redirect(response.requirePasswordChange ? "/change-password" : paths.events.list, {
+  return redirect(response.requirePasswordChange ? "/change-password" : paths.events.list, {
     status: 302,
     headers: {
       Location: response.requirePasswordChange ? "/change-password" : paths.events.list,

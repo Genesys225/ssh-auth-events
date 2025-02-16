@@ -23,13 +23,10 @@ export default async function handleRequest(
 ) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), ABORT_DELAY);
-  loadContext.env = {
-    API_BASE_URL: process.env.API_BASE_URL || "http://localhost:3000",
-  }
   const body = await renderToReadableStream(
     <MuiProvider>
       <ServerRouter 
-        context={Object.assign(remixContext, { env: loadContext.env })}
+        context={remixContext}
         url={request.url}
       />
     </MuiProvider>,

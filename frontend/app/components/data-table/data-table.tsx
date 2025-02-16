@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import { Checkbox, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import type { TableProps } from '@mui/material';
