@@ -1,0 +1,1 @@
+ALTER TABLE `ssh_events` ADD `auth_method` text;

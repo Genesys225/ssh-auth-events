@@ -1,0 +1,1 @@
+CREATE VIRTUAL TABLE ssh_events_fts USING fts5(ip_address, username, hostname);

@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowArbitraryExtensions": true,
+    "lib": ["ESNext"],
+    "noEmit": true,
+    "rootDir": "./",
+    "strict": true,
+    "esModuleInterop": false,
+    "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "baseUrl": ".",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "typeRoots": ["./node_modules/@types", "server/types"]
+  },
+  "include": [
+    "server/routes",
+    "lib",
+    "server/types",
+    "server/index.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "frontend",
+    "**/*.spec.ts"
+  ]
+}

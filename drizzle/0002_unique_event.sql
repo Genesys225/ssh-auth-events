@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `uniq_ssh_events` ON `ssh_events` (`timestamp`,`username`,`event_type`,`ip_address`);

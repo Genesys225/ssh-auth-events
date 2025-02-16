@@ -1,0 +1,6 @@
+{
+  "watch": ["./", "tsconfig.json"],
+  "ext": "ts",
+  "exec": "tsc && node --experimental-strip-types index.ts",
+  "ignore": ["node_modules", "dist", "frontend"]
+}
