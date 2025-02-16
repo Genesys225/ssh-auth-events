@@ -10,7 +10,7 @@ Ensuring real-time log updates by integrating streaming capabilities.
 🔹 Technologies
 We use the latest tech across the stack:
 
-Backend: Node.js (Express, SQLite, Drizzle ORM, WebSockets for real-time updates).
+Backend: Node.js (Express, SQLite, Drizzle ORM, EventEmitter + SSE for real-time updates).
 Frontend: Remix (React Router v7), Material UI, Phosphor Icons.
 Log Processing: Vector for dynamic log ingestion & normalization.
 Containerization: Docker Compose for node + vector, and a separate Dockerfile for Remix.
