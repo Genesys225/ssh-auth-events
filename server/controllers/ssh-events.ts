@@ -2,6 +2,9 @@ import type { Request, Response } from 'express';
 import { desc, sql } from 'drizzle-orm';
 import { sshEvents } from '../db/schema.ts';
 import { db } from '../db/index.ts';
+import EventEmitter from 'events';
+
+const eventEmitter = new EventEmitter();
 
 // Type for incoming Vector events
 interface VectorLogEvent {
@@ -33,7 +36,7 @@ export const logEvents = async (req: Request, res: Response) => {
     const events = req.body as VectorLogEvent[];
     for (const event of events) {
       if (!event.content) continue;
-
+      eventEmitter.emit('newEvent', event);
       const sqliteTimestamp = new Date(event.ts).getTime().toString().slice(0, -3);
       const compare = sql`
         ${sshEvents.rawMessage} = ${event.content}
@@ -42,7 +45,6 @@ export const logEvents = async (req: Request, res: Response) => {
       `;
       const existing = await db.select().from(sshEvents).where(compare).limit(1);
       if (existing.length > 0) continue;
-
       const res = await db.insert(sshEvents).values({
         timestamp: new Date(event.ts),
         eventType: event.event_type,
@@ -142,4 +144,22 @@ export const searchLogEvents = async (req: Request, res: Response) => {
     console.error('Error searching events:', error);
     res.status(500).json({ error: 'Failed to search events' });
   }
+};
+
+// 🔹 Stream new events
+export const streamEvents = (req: Request, res: Response) => {
+  const listener = (event: VectorLogEvent) => {
+    res.write(`data: ${JSON.stringify(event)}\n\n`);
+  };
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+
+  eventEmitter.on('newEvent', listener);
+
+  req.on('close', () => {
+    eventEmitter.off('newEvent', listener);
+    res.end();
+  });
 };
