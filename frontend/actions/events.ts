@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { appConfig } from '~/config/app-config';
+import { getApiBaseUrl } from '~/lib/get-api-url';
 
 interface EventsStats {
   total: {
@@ -17,19 +18,18 @@ interface EventsStats {
 export interface SSHEvent {
   id: number;
   timestamp: number;
-  event_type: string;
+  eventType: string;
   username: string;
-  ip_address: string;
+  ipAddress: string;
   status: string;
-  raw_message: string;
+  rawMessage: string;
   created_at: number;
-  auth_method: string;
+  authMethod: string;
   hostname: string;
-  match_field: string;
 }
 
 interface SearchResult extends SSHEvent {
-  match_type: 'username' | 'hostname' | 'ipAddress';
+  matchType: 'username' | 'hostname' | 'ipAddress';
 }
 
 interface SearchResults {
@@ -46,7 +46,7 @@ export const eventsKeys = {
   stats: ['events', 'stats'],
 };
 
-const baseUrl = typeof window === 'undefined' ? '' : window?.ENV?.API_BASE_URL
+const baseUrl = getApiBaseUrl();
 
 export const useEventsPaginationQuery = (page: string = '0') => {
   return useQuery({

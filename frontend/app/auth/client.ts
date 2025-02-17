@@ -1,4 +1,5 @@
 import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+import { getApiBaseUrl } from "~/lib/get-api-url";
 import { paths } from "~/lib/paths";
 
 // Helper to fetch the auth token from cookies
@@ -44,7 +45,7 @@ export async function requireAuth({ request, context: { env } }: LoaderFunctionA
     });
 
     if (!response.ok) throw redirect("/login");
-    
+
     if (pathname.startsWith('/login')) {
       return redirect(paths.events.list);
     }
@@ -61,7 +62,7 @@ export async function loginAction({ request, context }: ActionFunctionArgs) {
   const formData = await request.formData();
   const username = formData.get("username") as string;
   const password = formData.get("password") as string;
-  const baseApiUrl = process.env.API_BACKEND_URL || 'http://app:3000';
+  const baseApiUrl = getApiBaseUrl();
   const response = await login(username, password, baseApiUrl);
   
   if (!response.success) {

@@ -16,12 +16,14 @@ import { MuiMeta } from "./mui/mui-meta";
 import { MuiDocument } from "./mui/mui-document";
 import { requireAuth } from "./auth/client";
 import { useState } from "react";
+import { getApiBaseUrl } from "./lib/get-api-url";
+import { Toaster } from "sonner";
 
 // export const loader = requireAuth;
 export const loader = async (ctx: LoaderFunctionArgs) => {
   const env = {
+    API_BACKEND_URL: getApiBaseUrl(),
     API_BASE_URL: process.env.API_BASE_URL || "http://localhost:3000",
-    API_BACKEND_URL: process.env.API_BACKEND_URL || "http://app:3000",
   };
   Object.assign(ctx.context, { env });
   const user = await requireAuth(ctx);
@@ -79,6 +81,7 @@ export default function App({ loaderData }: { loaderData: Awaited<ReturnType<typ
             )}`,
           }}
         />
+        <Toaster position="bottom-right" />
       </QueryClientProvider>
     </MuiDocument>
   );

@@ -11,15 +11,15 @@ import { OrderModal } from '~/components/events/event-modal';
 import { useEventsPaginationQuery, type SSHEvent } from 'actions/events';
 
 
-export const meta = () => [{ title: `List | Orders | Dashboard | ${appConfig.site.name}` }];
+export const meta = () => [{ title: `List | Events | ${appConfig.site.name}` }];
 
 
 export default function Page(): React.JSX.Element {
-  const { customer, id, previewId, sortDir, status } = useExtractSearchParams();
+  const { ipAddress, id, previewId, sortDir, status, hostname, username } = useExtractSearchParams();
   const { data } = useEventsPaginationQuery();
   const orders = data?.events || [];
   const sortedOrders = applySort(orders, sortDir);
-  const filteredOrders = applyFilters(sortedOrders, { customer, id, status });
+  const filteredOrders = applyFilters(sortedOrders, { ipAddress, id, status, hostname, username });
 
   return (
     <>
@@ -44,7 +44,7 @@ export default function Page(): React.JSX.Element {
           </Stack>
           {/* <OrdersSelectionProvider orders={filteredOrders}> */}
             <Card>
-              <OrdersFilters filters={{ customer, id, status }} sortDir={sortDir} />
+              <OrdersFilters filters={{ ipAddress, id, status, hostname, username }} sortDir={sortDir} />
               <Divider />
               <Box sx={{ overflowX: 'auto' }}>
                 <SSHEventsTable rows={filteredOrders} />
@@ -61,8 +61,10 @@ export default function Page(): React.JSX.Element {
 }
 
 function useExtractSearchParams(): {
-  customer?: string;
+  ipAddress?: string;
   id?: string;
+  hostname?: string;
+  username?: string;
   previewId?: string;
   sortDir?: 'asc' | 'desc';
   status?: string;
@@ -70,7 +72,9 @@ function useExtractSearchParams(): {
   const [searchParams] = useSearchParams();
 
   return {
-    customer: searchParams.get('customer') || undefined,
+    ipAddress: searchParams.get('ipAddress') || undefined,
+    hostname: searchParams.get('hostname') || undefined,
+    username: searchParams.get('username') || undefined,
     id: searchParams.get('id') || undefined,
     previewId: searchParams.get('previewId') || undefined,
     sortDir: (searchParams.get('sortDir') || undefined) as 'asc' | 'desc' | undefined,
@@ -90,19 +94,31 @@ function applySort(row: SSHEvent[], sortDir: 'asc' | 'desc' | undefined): SSHEve
   });
 }
 
-function applyFilters(row: SSHEvent[], { customer, id, status }: Filters): SSHEvent[] {
+function applyFilters(row: SSHEvent[], { ipAddress, username, hostname, id, status }: Filters): SSHEvent[] {
   return row.filter((item) => {
-    // if (customer) {
-    //   if (!item.customer?.name?.toLowerCase().includes(customer.toLowerCase())) {
-    //     return false;
-    //   }
-    // }
+    if (ipAddress) {
+      if (!item.ipAddress.toLowerCase().includes(ipAddress.toLowerCase())) {
+        return false;
+      }
+    }
 
-    // if (id) {
-    //   if (!item.id?.toLowerCase().includes(id.toLowerCase())) {
-    //     return false;
-    //   }
-    // }
+    if (username) {
+      if (!item.username.toLowerCase().includes(username.toLowerCase())) {
+        return false;
+      }
+    }
+
+    if (hostname) {
+      if (!item.hostname.toLowerCase().includes(hostname.toLowerCase())) {
+        return false;
+      }
+    }
+
+    if (id) {
+      if (!item.id.toString().includes(id)) {
+        return false;
+      }
+    }
 
     if (status) {
       if (item.status !== status) {

@@ -5,6 +5,12 @@ services:
       - "3000:3000"
     volumes:
       - ./sqlite.db:/app/sqlite.db
+    healthcheck:
+      test: ["node", "-e", "fetch('http://localhost:3000').then(() => process.exit(0)).catch(() => process.exit(1))"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
 
   vector:
     image: timberio/vector:latest-debian
@@ -16,9 +22,9 @@ services:
       - /var/log/journal:/var/log/journal:ro
       - /run/log/journal:/run/log/journal:ro
       - /etc/machine-id:/etc/machine-id:ro
-      - ./data:/etc/vector
+      - ./vector:/etc/vector
       - vector-data:/var/lib/vector
-      - ./vector:/scripts:ro
+      - ./vector/detect-and-start.sh:/scripts/detect-and-start.sh:ro
     environment:
       - VECTOR_LOG=info
     entrypoint: ["/bin/sh", "/scripts/detect-and-start.sh"]

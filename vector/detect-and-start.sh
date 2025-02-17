@@ -4,8 +4,11 @@
 apt-get update
 apt-get install -y systemd-journal-reader
 
+INGEST_URL=${INGEST_URL:-"http://app:3000/api/log-events"}
 CONFIG_PATH="/etc/vector/vector.yaml"
 mkdir -p "$(dirname "$CONFIG_PATH")"
+
+touch "$CONFIG_PATH"
 
 # Check for systemd journal
 if [ -d "/var/log/journal" ]; then
@@ -163,7 +166,7 @@ sinks:
   sqlite_sink:
     type: "http"
     inputs: ["ssh_events"]
-    uri: "http://app:3000/api/log-events"
+    uri: "${INGEST_URL}"
     encoding:
       codec: "json"
     method: "post"

@@ -22,7 +22,9 @@ import { useEventStatsQuery } from 'actions/events';
 export type SortDir = 'asc' | 'desc';
 
 export interface Filters {
-  customer?: string;
+  ipAddress?: string;
+  username?: string;
+  hostname?: string;
   id?: string;
   status?: string;
 }
@@ -42,7 +44,7 @@ export function OrdersFilters({ filters = {}, sortDir = 'desc' }: OrdersFiltersP
     { label: 'Success', value: 'success', count: data?.total?.loginSuccess ?? 0 },
     { label: 'Failed', value: 'failed', count: data?.total?.loginFailed ?? 0 },
   ];
-  const { customer, id, status } = filters;
+  const { ipAddress, id, status, hostname, username } = filters;
 
   const navigate = useNavigate();
 
@@ -64,8 +66,16 @@ export function OrdersFilters({ filters = {}, sortDir = 'desc' }: OrdersFiltersP
         searchParams.set('id', newFilters.id);
       }
 
-      if (newFilters.customer) {
-        searchParams.set('customer', newFilters.customer);
+      if (newFilters.ipAddress) {
+        searchParams.set('ipAddress', newFilters.ipAddress);
+      }
+
+      if (newFilters.username) {
+        searchParams.set('username', newFilters.username);
+      }
+
+      if (newFilters.hostname) {
+        searchParams.set('hostname', newFilters.hostname);
       }
 
       navigate(`${paths.events.list}?${searchParams.toString()}`);
@@ -84,9 +94,23 @@ export function OrdersFilters({ filters = {}, sortDir = 'desc' }: OrdersFiltersP
     [updateSearchParams, filters, sortDir]
   );
 
-  const handleCustomerChange = React.useCallback(
+  const handleIpAddressChange = React.useCallback(
     (value?: string) => {
-      updateSearchParams({ ...filters, customer: value }, sortDir);
+      updateSearchParams({ ...filters, ipAddress: value }, sortDir);
+    },
+    [updateSearchParams, filters, sortDir]
+  );
+
+  const handleHostnameChange = React.useCallback(
+    (value?: string) => {
+      updateSearchParams({ ...filters, hostname: value }, sortDir);
+    },
+    [updateSearchParams, filters, sortDir]
+  );
+
+  const handleUsernameChange = React.useCallback(
+    (value?: string) => {
+      updateSearchParams({ ...filters, username: value }, sortDir);
     },
     [updateSearchParams, filters, sortDir]
   );
@@ -105,7 +129,7 @@ export function OrdersFilters({ filters = {}, sortDir = 'desc' }: OrdersFiltersP
     [updateSearchParams, filters]
   );
 
-  const hasFilters = status || id || customer;
+  const hasFilters = status || id || ipAddress;
 
   return (
     <div>
@@ -138,16 +162,40 @@ export function OrdersFilters({ filters = {}, sortDir = 'desc' }: OrdersFiltersP
             value={id}
           />
           <FilterButton
-            displayValue={customer}
-            label="Customer"
+            displayValue={ipAddress}
+            label="IP Address"
             onFilterApply={(value) => {
-              handleCustomerChange(value as string);
+              handleIpAddressChange(value as string);
             }}
             onFilterDelete={() => {
-              handleCustomerChange();
+              handleIpAddressChange();
             }}
-            popover={<CustomerFilterPopover />}
-            value={customer}
+            popover={<IpAddressFilterPopover />}
+            value={ipAddress}
+          />
+          <FilterButton
+            displayValue={hostname}
+            label="Hostname"
+            onFilterApply={(value) => {
+              handleHostnameChange(value as string);
+            }}
+            onFilterDelete={() => {
+              handleHostnameChange();
+            }}
+            popover={<HostnameFilterPopover />}
+            value={ipAddress}
+          />
+          <FilterButton
+            displayValue={username}
+            label="Username"
+            onFilterApply={(value) => {
+              handleUsernameChange(value as string);
+            }}
+            onFilterDelete={() => {
+              handleUsernameChange();
+            }}
+            popover={<UsernameFilterPopover />}
+            value={ipAddress}
           />
           {hasFilters ? <Button onClick={handleClearFilters}>Clear filters</Button> : null}
         </Stack>
@@ -170,7 +218,7 @@ export function OrdersFilters({ filters = {}, sortDir = 'desc' }: OrdersFiltersP
   );
 }
 
-function CustomerFilterPopover(): React.JSX.Element {
+function IpAddressFilterPopover(): React.JSX.Element {
   const { anchorEl, onApply, onClose, open, value: initialValue } = useFilterContext();
   const [value, setValue] = React.useState<string>('');
 
@@ -179,7 +227,77 @@ function CustomerFilterPopover(): React.JSX.Element {
   }, [initialValue]);
 
   return (
-    <FilterPopover anchorEl={anchorEl} onClose={onClose} open={open} title="Filter by customer">
+    <FilterPopover anchorEl={anchorEl} onClose={onClose} open={open} title="Filter by ip address">
+      <FormControl>
+        <OutlinedInput
+          onChange={(event) => {
+            setValue(event.target.value);
+          }}
+          onKeyUp={(event) => {
+            if (event.key === 'Enter') {
+              onApply(value);
+            }
+          }}
+          value={value}
+        />
+      </FormControl>
+      <Button
+        onClick={() => {
+          onApply(value);
+        }}
+        variant="contained"
+      >
+        Apply
+      </Button>
+    </FilterPopover>
+  );
+}
+
+function HostnameFilterPopover(): React.JSX.Element {
+  const { anchorEl, onApply, onClose, open, value: initialValue } = useFilterContext();
+  const [value, setValue] = React.useState<string>('');
+
+  React.useEffect(() => {
+    setValue((initialValue as string | undefined) ?? '');
+  }, [initialValue]);
+
+  return (
+    <FilterPopover anchorEl={anchorEl} onClose={onClose} open={open} title="Filter by hostname">
+      <FormControl>
+        <OutlinedInput
+          onChange={(event) => {
+            setValue(event.target.value);
+          }}
+          onKeyUp={(event) => {
+            if (event.key === 'Enter') {
+              onApply(value);
+            }
+          }}
+          value={value}
+        />
+      </FormControl>
+      <Button
+        onClick={() => {
+          onApply(value);
+        }}
+        variant="contained"
+      >
+        Apply
+      </Button>
+    </FilterPopover>
+  );
+}
+
+function UsernameFilterPopover(): React.JSX.Element {
+  const { anchorEl, onApply, onClose, open, value: initialValue } = useFilterContext();
+  const [value, setValue] = React.useState<string>('');
+
+  React.useEffect(() => {
+    setValue((initialValue as string | undefined) ?? '');
+  }, [initialValue]);
+
+  return (
+    <FilterPopover anchorEl={anchorEl} onClose={onClose} open={open} title="Filter by username">
       <FormControl>
         <OutlinedInput
           onChange={(event) => {

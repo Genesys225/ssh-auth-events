@@ -11,15 +11,14 @@ import { Box, Chip, IconButton, Stack, Typography } from '@mui/material';
 export interface SSHEvent {
   id: number;
   timestamp: number;
-  event_type: string;
+  eventType: string;
   username: string;
-  ip_address: string;
+  ipAddress: string;
   status: string;
-  raw_message: string;
+  rawMessage: string;
   created_at: number;
-  auth_method: string;
+  authMethod: string;
   hostname: string;
-  match_field: string;
 }
 
 const columns = [
@@ -41,7 +40,7 @@ const columns = [
         <div>
           <Typography variant="subtitle2">{row.username}</Typography>
           <Typography color="text.secondary" variant="body2">
-            {row.ip_address} • {row.hostname}
+            {row.ipAddress} • {row.hostname}
           </Typography>
         </div>
       </Stack>
@@ -67,18 +66,18 @@ const columns = [
   },
   {
     formatter: (row): React.JSX.Element => (
-      <Typography variant="body2">{row.auth_method ? row.auth_method.toUpperCase() : 'Unknown'}</Typography>
+      <Typography variant="body2">{row.authMethod ? row.authMethod.toUpperCase() : 'Unknown'}</Typography>
     ),
     name: 'Auth Method',
     width: '150px',
   },
-  {
-    formatter: (row): React.JSX.Element => (
-      <Typography variant="body2">{row.match_field ? row.match_field.toUpperCase() : 'N/A'}</Typography>
-    ),
-    name: 'Matched Field',
-    width: '150px',
-  },
+  // {
+  //   formatter: (row): React.JSX.Element => (
+  //     <Typography variant="body2">{row.matchField ? row.matchField.toUpperCase() : 'N/A'}</Typography>
+  //   ),
+  //   name: 'Matched Field',
+  //   width: '150px',
+  // },
   {
     formatter: (): React.JSX.Element => (
       <IconButton>
@@ -99,7 +98,7 @@ export interface SSHEventsTableProps {
 export function SSHEventsTable({ rows }: SSHEventsTableProps): React.JSX.Element {
   return (
     <>
-      <DataTable<SSHEvent> columns={columns} rows={rows} selectable />
+      <DataTable<SSHEvent> columns={columns} rows={rows} />
       {!rows.length ? (
         <Box sx={{ p: 3 }}>
           <Typography color="text.secondary" sx={{ textAlign: 'center' }} variant="body2">
