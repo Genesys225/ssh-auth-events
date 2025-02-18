@@ -57,22 +57,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App({ loaderData }: { loaderData: Awaited<ReturnType<typeof loader>> }) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            // With SSR, we usually want to set some default staleTime
-            // above 0 to avoid refetching immediately on the client
-            staleTime: 60 * 1000,
-          },
-        },
-      })
-  );
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // With SSR, we usually want to set some default staleTime
+      // above 0 to avoid refetching immediately on the client
+      staleTime: 60 * 1000,
+    },
+  },
+});
+
+export default function App({ loaderData }: Route.ComponentProps) {
+  const [queryClientSingle] = useState(() => queryClient);
   return (
     <MuiDocument>
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClientSingle}>
         <Outlet context={loaderData} />
         <script
           dangerouslySetInnerHTML={{

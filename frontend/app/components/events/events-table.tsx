@@ -22,6 +22,7 @@ export interface SSHEvent {
 }
 
 const columns = [
+  { field: 'id', name: 'ID', width: '50px' },
   {
     formatter: (row): React.JSX.Element => (
       <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { TablePagination } from '@mui/material';
+import { useSearchParams } from 'react-router';
 
 function noop(): void {
   return undefined;
@@ -7,22 +8,42 @@ function noop(): void {
 
 interface OrdersPaginationProps {
   count: number;
-  page: number;
 }
 
-export function OrdersPagination({ count, page }: OrdersPaginationProps): React.JSX.Element {
-  // You should implement the pagination using a similar logic as the filters.
-  // Note that when page change, you should keep the filter search params.
+export function OrdersPagination({ count }: OrdersPaginationProps): React.JSX.Element {
+  const [params, setParams] = useSearchParams();
+  const rowsPerPage = parseInt(params.get('rowsPerPage') ?? '25');
+  const page = parseInt(params.get('page') ?? '0');
+
+  const handlePageChange = (_: React.MouseEvent<HTMLButtonElement> | null, page: number): void => {
+    if (page === 0) {
+      params.delete('page');
+      setParams(params);
+      return;
+    }
+    setParams({ page: page.toString() });
+  };
+
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>): void => {
+    const rowsPerPage = parseInt(event.target.value, 10);
+    if (rowsPerPage === 25) {
+      params.delete('rowsPerPage');
+      setParams(params);
+      return;
+    }
+    params.set('rowsPerPage', rowsPerPage.toString());
+    setParams(params);
+  };
 
   return (
     <TablePagination
       component="div"
       count={count}
-      onPageChange={noop}
-      onRowsPerPageChange={noop}
+      onPageChange={handlePageChange}
+      onRowsPerPageChange={handleRowsPerPageChange}
       page={page}
-      rowsPerPage={5}
-      rowsPerPageOptions={[5, 10, 25]}
+      rowsPerPage={rowsPerPage}
+      rowsPerPageOptions={[25, 100, 250, 500, 1000]}
     />
   );
 }

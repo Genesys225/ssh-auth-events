@@ -10,11 +10,23 @@ import { NotificationsPopover } from './notifications-popover';
 import { usePopover } from '~/hooks/use-popover';
 import { UserPopover } from './user-popover/user-popover';
 import { Avatar, Badge, Box, Divider, IconButton, Stack, Tooltip } from '@mui/material';
+import localforage from 'localforage';
+import { useSSE } from '~/hooks/use-sse';
+import { getApiBaseUrl } from '~/lib/get-api-url';
+import type { SSHEvent } from 'actions/events';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 
 export interface MainNavProps {
   items: NavItemConfig[];
 }
+
+interface SSHAuthNotification extends SSHEvent {
+  seen: boolean;
+  type: 'event' | 'log';
+}
+
 
 export function MainNav({ items }: MainNavProps): React.JSX.Element {
   const [openNav, setOpenNav] = React.useState<boolean>(false);
@@ -97,9 +109,73 @@ function SearchButton(): React.JSX.Element {
   );
 }
 
+const maxAge = 1000 * 60 * 60 * 24 * 7; // 7 days
 
 function NotificationsButton(): React.JSX.Element {
   const popover = usePopover<HTMLButtonElement>();
+  const [notifications, setNotifications] = React.useState<SSHAuthNotification[]>([]);
+  const queryClient = useQueryClient();
+  React.useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const storedNotifications = await localforage.getItem<SSHAuthNotification[]>("notifications");
+        if (storedNotifications) {
+          const now = Date.now();
+          const freshNotifications = storedNotifications.filter((n) => now - n.timestamp < maxAge);
+          setNotifications(freshNotifications);
+          if (freshNotifications.length !== storedNotifications.length) {
+            localforage.setItem("notifications", freshNotifications).catch((error) => {
+              console.error("Error saving notifications to storage:", error);
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error loading notifications from storage:", error);
+      }
+    };
+    fetchNotifications();
+  }, []);
+
+  // Subscribe to SSE for real-time updates
+  useSSE<SSHAuthNotification>(getApiBaseUrl() + "/api/log-events/stream", (event) => {
+    if (!event.timestamp) return;
+    setNotifications((prev) => {
+      // Prevent duplicate entries
+      if (prev.some((n) => n.timestamp === event.timestamp)) return prev;
+      toast.success("New event received!");
+      event.seen = false;
+      const updated = [event, ...prev].slice(0, 100); // Keep last 100 notifications
+
+      // Properly handle the async storage update
+      localforage.setItem("notifications", updated).catch((error) => {
+        console.error("Error saving notifications to storage:", error);
+      });
+      queryClient.invalidateQueries({ queryKey: ['events', 'pagination'], exact: false });
+      return updated;
+    });
+  });
+
+  const handleRemoveOne = (timestamp: number) => {
+    setNotifications((prev) => {
+      const updated = prev.filter((notification) => notification.timestamp !== timestamp);
+      localforage.setItem("notifications", updated).catch((error) => {
+        console.error("Error saving notifications to storage:", error);
+      });
+      return updated;
+    });
+  };
+
+  const handleMarkAllAsRead = () => {
+    setNotifications((prev) => {
+      const updated = prev.map((notification) => ({ ...notification, seen: true }));
+      localforage.setItem("notifications", updated).catch((error) => {
+        console.error("Error saving notifications to storage:", error);
+      });
+      return updated;
+    });
+  }
+
+  const hasUnseen = notifications.some((n) => !n.seen);
 
   return (
     <React.Fragment>
@@ -108,13 +184,21 @@ function NotificationsButton(): React.JSX.Element {
           color="error"
           sx={{ '& .MuiBadge-dot': { borderRadius: '50%', height: '10px', right: '6px', top: '6px', width: '10px' } }}
           variant="dot"
+          invisible={!hasUnseen}
         >
           <IconButton onClick={popover.handleOpen} ref={popover.anchorRef}>
             <BellIcon />
           </IconButton>
         </Badge>
       </Tooltip>
-      <NotificationsPopover anchorEl={popover.anchorRef.current} onClose={popover.handleClose} open={popover.open} />
+      <NotificationsPopover<SSHAuthNotification>
+        onMarkAllAsRead={handleMarkAllAsRead}
+        onRemoveOne={handleRemoveOne}
+        anchorEl={popover.anchorRef.current}
+        onClose={popover.handleClose}
+        open={popover.open}
+        notifications={notifications}
+      />
     </React.Fragment>
   );
 }
@@ -151,9 +235,10 @@ function UserButton(): React.JSX.Element {
               width: '12px',
             },
           }}
+          invisible
           variant="dot"
         >
-          <Avatar src={user.avatar} />
+          <Avatar />
         </Badge>
       </Box>
       <UserPopover anchorEl={popover.anchorRef.current} onClose={popover.handleClose} open={popover.open} />

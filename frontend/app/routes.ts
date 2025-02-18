@@ -6,6 +6,7 @@ export default remixRoutesOptionAdapter((defineRoutes) => {
     route("/", "routes/layout.tsx", () => {
       route("/", "routes/home.tsx", { index: true });
       route("/events", "routes/events/list.tsx");
+      route("/events/search", "routes/events/search.tsx");
       route("/events/$orderId", "routes/events/details.tsx");
     });
     route("/login", "routes/auth/sign-in.tsx");

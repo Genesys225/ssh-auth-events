@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { useNavigate } from 'react-router';
+import { useSearchParams } from 'react-router';
 // import { useOrdersSelection } from './events-selection-context';
-import { paths } from '~/lib/paths';
 import { Option } from '../option';
 import { FilterButton, FilterPopover, useFilterContext } from '../filter-button';
 import {
@@ -14,7 +13,6 @@ import {
   Stack,
   Tab,
   Tabs,
-  Typography,
   type SelectChangeEvent
 } from '@mui/material';
 import { useEventStatsQuery } from 'actions/events';
@@ -30,12 +28,12 @@ export interface Filters {
 }
 
 export interface OrdersFiltersProps {
-  filters?: Filters;
   sortDir?: SortDir;
 }
 
-export function OrdersFilters({ filters = {}, sortDir = 'desc' }: OrdersFiltersProps): React.JSX.Element {
+export function OrdersFilters({ sortDir = 'desc' }: OrdersFiltersProps): React.JSX.Element {
   const { data } = useEventStatsQuery();
+  const [searchParams, setSearchParams] = useSearchParams();
   const allCount = typeof data?.total?.loginFailed === 'number'
     ? data!.total!.loginFailed + data!.total!.loginSuccess
     : 0;
@@ -44,43 +42,65 @@ export function OrdersFilters({ filters = {}, sortDir = 'desc' }: OrdersFiltersP
     { label: 'Success', value: 'success', count: data?.total?.loginSuccess ?? 0 },
     { label: 'Failed', value: 'failed', count: data?.total?.loginFailed ?? 0 },
   ];
-  const { ipAddress, id, status, hostname, username } = filters;
 
-  const navigate = useNavigate();
+  const filters = Array.from(searchParams.keys()).reduce((acc, key) => {
+    acc[key as keyof Filters] = searchParams.get(key)!;
+    return acc;
+  }, {} as Filters);
 
+  const { status, id, ipAddress, hostname, username } = filters;
   // const selection = useOrdersSelection();
 
   const updateSearchParams = React.useCallback(
     (newFilters: Filters, newSortDir: SortDir): void => {
-      const searchParams = new URLSearchParams();
 
       if (newSortDir === 'asc') {
         searchParams.set('sortDir', newSortDir);
+      } else if (newSortDir) {
+        searchParams.delete('sortDir');
       }
 
-      if (newFilters.status) {
+      if (newFilters.status === 'success' || newFilters.status === 'failed') {
         searchParams.set('status', newFilters.status);
+      } else if (newFilters.status === '') {
+        searchParams.delete('status');
       }
 
       if (newFilters.id) {
         searchParams.set('id', newFilters.id);
+      } else if (newFilters.id === '') {
+        searchParams.delete('id');
       }
 
       if (newFilters.ipAddress) {
         searchParams.set('ipAddress', newFilters.ipAddress);
+      } else if (newFilters.ipAddress === '') {
+        searchParams.delete('ipAddress');
       }
 
       if (newFilters.username) {
         searchParams.set('username', newFilters.username);
+      } else if (newFilters.username === '') {
+        searchParams.delete('username');
       }
 
       if (newFilters.hostname) {
         searchParams.set('hostname', newFilters.hostname);
+      } else if (newFilters.hostname === '') {
+        searchParams.delete('hostname');
       }
 
-      navigate(`${paths.events.list}?${searchParams.toString()}`);
+      if (Object.keys(newFilters).length === 0) {
+        searchParams.delete('status');
+        searchParams.delete('id');
+        searchParams.delete('ipAddress');
+        searchParams.delete('username');
+        searchParams.delete('hostname');
+      }
+
+      setSearchParams(searchParams);
     },
-    [navigate]
+    [setSearchParams]
   );
 
   const handleClearFilters = React.useCallback(() => {
@@ -129,7 +149,7 @@ export function OrdersFilters({ filters = {}, sortDir = 'desc' }: OrdersFiltersP
     [updateSearchParams, filters]
   );
 
-  const hasFilters = status || id || ipAddress;
+  const hasFilters = status || id || ipAddress || hostname || username;
 
   return (
     <div>

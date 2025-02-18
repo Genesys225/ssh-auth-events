@@ -35,13 +35,13 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
 			transformOrigin={{ horizontal: "right", vertical: "top" }}
 		>
 			<Box sx={{ p: 2 }}>
-				<Typography>{user.name}</Typography>
+				<Typography>Admin</Typography>
 				<Typography color="text.secondary" variant="body2">
-					{user.email}
+					admin@200apps.com
 				</Typography>
 			</Box>
 			<Divider />
-			<List sx={{ p: 1 }}>
+			{/* <List sx={{ p: 1 }}>
 				<MenuItem component={RouterLink} href={paths.settings.account} onClick={onClose}>
 					<ListItemIcon>
 						<UserIcon />
@@ -49,7 +49,7 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
 					Account
 				</MenuItem>
 			</List>
-			<Divider />
+			<Divider /> */}
 			<Box sx={{ p: 1 }}>
 				<SignOutButton />
 			</Box>

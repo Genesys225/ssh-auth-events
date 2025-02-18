@@ -1,15 +1,17 @@
-import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { useSearchParams, type LoaderFunctionArgs } from 'react-router';
 import { appConfig } from '~/config/app-config';
 import { SSHEventsTable } from '~/components/events/events-table';
-import { Box, Button, Card, Divider, Stack, Typography } from '@mui/material';
-// import { OrdersSelectionProvider } from '~/components/events/events-selection-context';
+import { Box, Card, Divider, Stack, Typography } from '@mui/material';
 import { OrdersFilters, type Filters } from '~/components/events/events-filters';
 import { OrdersPagination } from '~/components/events/eventspagination';
 import { OrderModal } from '~/components/events/event-modal';
-import { useEventsPaginationQuery, type PaginatedEvents, type SSHEvent } from 'actions/events';
+import {
+  useEventsSearchQuery,
+  type SearchResults,
+  type SSHEvent,
+} from 'actions/events';
 import { getApiBaseUrl } from '~/lib/get-api-url';
-import type { Route } from './+types/list';
+import type { Route } from './+types/search';
 
 
 export const meta = () => [{ title: `List | Events | ${appConfig.site.name}` }];
@@ -21,34 +23,23 @@ export async function loader(context: LoaderFunctionArgs) {
   const rowsPerPage = searchParams.get('rowsPerPage') ?? '25';
   const limit = Number(rowsPerPage);
   const offset = Number(page) * limit;
-  const response = await fetch(`${baseUrl}/api/log-events?limit=${limit}&offset=${offset}`);
-  const data = await response.json() as PaginatedEvents;
+  const apiSearchParams = new URLSearchParams({
+    limit: limit.toString(),
+    offset: offset.toString(),
+    q: searchParams.get('q') || '',
+  }).toString();
+  const response = await fetch(`${baseUrl}/api/log-events/search?${apiSearchParams}`);
+  const data = await response.json() as SearchResults;
   return data;
 }
 
-// export async function clientLoader({ serverLoader, request }: Route.ClientLoaderArgs) {
-//   const { searchParams } = new URL(request.url);
-//   const page = searchParams.get('page') ?? '0';
-//   const rowsPerPage = searchParams.get('rowsPerPage') ?? '25';
-//   const limit = Number(rowsPerPage);
-//   const offset = Number(page) * limit;
-//   const cachedData = queryClient.getQueryData(eventsKeys.pagination(limit, offset));
-//   if (cachedData) {
-//     return cachedData as PaginatedEvents;
-//   }
-//   const serverData = await serverLoader();
-//   queryClient.setQueryData(eventsKeys.pagination(limit, offset), serverData);
-//   return serverData;
-// }
-
-// clientLoader.hydrate = true;
 
 export default function Page({ loaderData }: Route.ComponentProps): React.JSX.Element {
   const { ipAddress, id, previewId, sortDir, status, hostname, username } = useExtractSearchParams();
-  const { data } = useEventsPaginationQuery({ serverData: loaderData });
-  const orders = data?.events || [];
-  const sortedOrders = applySort(orders, sortDir);
-  const filteredOrders = applyFilters(sortedOrders, { ipAddress, id, status, hostname, username });
+  const { data } = useEventsSearchQuery({ serverData: loaderData });
+  const events = loaderData?.results || [];
+  const sortedEvents = applySort(events, sortDir);
+  const filteredOrders = applyFilters(sortedEvents, { ipAddress, id, status, hostname, username });
 
   return (
     <>
@@ -63,7 +54,7 @@ export default function Page({ loaderData }: Route.ComponentProps): React.JSX.El
         <Stack spacing={4}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} sx={{ alignItems: 'flex-start' }}>
             <Box sx={{ flex: '1 1 auto' }}>
-              <Typography variant="h4">Orders</Typography>
+              <Typography variant="h4">Search results</Typography>
             </Box>
             {/* <div>
               <Button startIcon={<PlusIcon />} variant="contained">
